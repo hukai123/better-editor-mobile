@@ -1,7 +1,7 @@
 {
   "name": "better-editor-mobile",
   "title": "better-editor-mobile",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "支持本地图片、视频上传的移动端富文本编辑器",
   "main": "release/wangEditor.js",
   "scripts": {
@@ -36,6 +36,7 @@
     "autoprefixer": "^6.7.7",
     "babel-plugin-external-helpers": "^6.22.0",
     "babel-preset-latest": "^6.24.0",
+    "better-editor-mobile": "^0.0.1",
     "cssgrace": "^3.0.0",
     "formidable": "^1.1.1",
     "gulp": "^4.0.2",

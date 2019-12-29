@@ -548,7 +548,7 @@ var config = {
     // 默认菜单配置
     // menus: ['head', 'bold', 'fontSize', 'fontName', 'italic', 'underline', 'strikeThrough', 'foreColor', 'backColor', 'link', 'list', 'justify', 'quote', 'emoticon', 'image', 'table', 'video', 'code', 'undo', 'redo'],
 
-    menus: ['head', 'bold','justify','image','video'],
+    menus: ['image','video','bold'],
 
     fontNames: ['宋体', '微软雅黑', 'Arial', 'Tahoma', 'Verdana'],
 
@@ -666,11 +666,11 @@ var config = {
         // console.log(url)  // url 即插入视频的地址
     },
 
-    // 默认上传图片 max size: 5M
-    uploadImgMaxSize: 5 * 1024 * 1024,
+    // 默认上传图片 max size: 30M
+    uploadImgMaxSize: 30 * 1024 * 1024,
 
-    // 默认上传视频 max size: 100M
-    uploadVideoMaxSize: 100 * 1024 * 1024,
+    // 默认上传视频 max size: 500M
+    uploadVideoMaxSize: 500 * 1024 * 1024,
 
     // 配置一次最多上传几个图片
     // uploadImgMaxLength: 5,
@@ -1051,7 +1051,8 @@ Head.prototype = {
             // 例如选中的是 <p>xxx</p><p>yyy</p> 来设置标题，设置之后会成为 <h1>xxx<br>yyy</h1> 不符合预期
             return;
         }
-
+        console.log('value',value);
+        
         editor.cmd.do('formatBlock', value);
     },
 
@@ -1176,7 +1177,8 @@ Panel.prototype = {
     // 显示（插入DOM）
     show: function show() {
         var _this = this;
-
+        console.log('menu',this.menu);
+        console.log('opt',this.opt);
         var menu = this.menu;
         if (_isCreatedPanelMenus.indexOf(menu) >= 0) {
             // 该菜单已经创建了 panel 不能再创建
@@ -2582,21 +2584,63 @@ Table.prototype = {
 // 构造函数
 function Video(editor) {
     this.editor = editor;
-    this.$elem = $('<div class="w-e-menu"><i class="w-e-icon-play"></i></div>');
-    this.type = 'panel';
+    var videoMenuId = getRandom('w-e-video');
+    this.videoMenuId = videoMenuId;
+    var upFileVideoId = getRandom('up-file-video');
+    this.upFileVideoId = upFileVideoId;
+    this.$elem = $('<div class="w-e-menu" id="' + videoMenuId + '"><i class="w-e-icon-play"></i><input id="' + upFileVideoId + '" style="display:none;" type="file" multiple="multiple" accept=" accept="audio/mp4, video/mp4,video/*" /></div>');
+    // this.type = 'panel';
+    this.type = 'click';
 
     // 当前是否 active 状态
     this._active = false;
+
+    //绑定按钮事件
+    this.addUploadEvent();
 }
 
 // 原型
 Video.prototype = {
     constructor: Video,
 
+    addUploadEvent: function addUploadEvent(){
+        var editor = this.editor;
+        $('#'+this.upFileVideoId).on('click', function (e) {
+            e.stopPropagation();
+        });
+        editor.$toolbarElem.on("change","#"+this.upFileVideoId,function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            var fileList = e.target.files;
+            if (fileList.length) {
+                var uploadVideo = editor.uploadVideo;
+                uploadVideo.uploadVideo(fileList);
+            }
+        })
+    },
     onClick: function onClick() {
-        console.log(22222);
+        var editor = this.editor;
+        // var uploadVideo = this.editor.uploadVideo;
+        // $('#'+this.upFileVideoId).on('click', function (e) {
+        //     e.stopPropagation();
+        // });
+        // editor.$toolbarElem.on("change","#"+this.upFileVideoId,function (e) {
+        //     e.stopPropagation();
+        //     var fileList = e.target.files;
+        //     if (fileList.length) {
+        //         uploadVideo.uploadVideo(fileList);
+        //     }
+        // })
+
+        var $file = $('#' + this.upFileVideoId);
+        var fileElem = $file[0];
+        if (fileElem) {
+            fileElem.click();
+        } else {
+            return false;
+        }
         
-        this._createPanel();
+        // this._createPanel();
     },
 
     _createPanel: function _createPanel() {
@@ -2711,29 +2755,82 @@ Video.prototype = {
 function Image(editor) {
     this.editor = editor;
     var imgMenuId = getRandom('w-e-img');
-    this.$elem = $('<div class="w-e-menu" id="' + imgMenuId + '"><i class="w-e-icon-image"></i></div>');
+    this.imgMenuId = imgMenuId;
+    var upFileId = getRandom('up-file');
+    this.upFileId = upFileId;
+    this.$elem = $('<div class="w-e-menu" id="' + imgMenuId + '"><i class="w-e-icon-image"></i><input id="' + upFileId + '" style="display:none;" type="file" multiple="multiple" accept="image/jpg,image/jpeg,image/png,image/gif,image/bmp"/></div>');
     editor.imgMenuId = imgMenuId;
-    this.type = 'panel';
+    // this.type = 'panel';
+    this.type = 'click';
 
     // 当前是否 active 状态
     this._active = false;
+
+    //绑定按钮事件
+    this.addUploadEvent();
 }
 
 // 原型
 Image.prototype = {
     constructor: Image,
-
+    addUploadEvent: function addUploadEvent(){
+        var editor = this.editor;
+        $('#'+this.upFileId).on('click', function (e) {
+            e.stopPropagation();
+        });
+        this.editor.$toolbarElem.on("change","#"+this.upFileId,function (e) {
+        // $('#'+this.upFileId).off('change').on("change",function (e) {
+            e.stopPropagation();
+            e.preventDefault();
+            console.log('eeeeeeeeeeeeee',e);
+            
+            var fileList = e.target.files;
+            if (fileList.length) {
+                console.log('fileList',fileList);
+                var uploadImg = editor.uploadImg;
+                console.log('uploadImg',uploadImg);
+                uploadImg.uploadImg(fileList);
+            }
+        })
+    },
     onClick: function onClick() {
         var editor = this.editor;
         var config = editor.config;
-        if (config.qiniu) {
-            return;
-        }
-        if (this._active) {
-            this._createEditPanel();
+        var uploadImg = this.editor.uploadImg;
+        
+        // $('#'+this.upFileId).on('click', function (e) {
+        //     e.stopPropagation();
+        // });
+        // // this.editor.$toolbarElem.on("change","#"+this.upFileId,function (e) {
+        // $('#'+this.upFileId).off('change').on("change",function (e) {
+        //     e.stopPropagation();
+        //     e.preventDefault();
+        //     e.preventDefault()
+        //     console.log('eeeeeeeeeeeeee',e);
+            
+        //     var fileList = e.target.files;
+        //     if (fileList.length) {
+        //         console.log('fileList',fileList);
+        //         uploadImg.uploadImg(fileList);
+        //     }
+        // })
+
+        var $file = $('#' + this.upFileId);
+        var fileElem = $file[0];
+        if (fileElem) {
+            fileElem.click();
         } else {
-            this._createInsertPanel();
+            return false;
         }
+
+        // if (config.qiniu) {
+        //     return;
+        // }
+        // if (this._active) {
+        //     this._createEditPanel();
+        // } else {
+        //     this._createInsertPanel();
+        // }
     },
 
     _createEditPanel: function _createEditPanel() {
@@ -2992,7 +3089,7 @@ Menus.prototype = {
                 _this.menus[menuKey] = new MenuConstructor(editor);
             }
         });
-        console.log('_this.menus[video]',_this.menus['video']);
+        // console.log('_this.menus[video]',_this.menus['video']);
         
         // 添加到菜单栏
         this._addToToolbar();
@@ -3006,11 +3103,13 @@ Menus.prototype = {
         var editor = this.editor;
         var $toolbarElem = editor.$toolbarElem;
         var menus = this.menus;
+        // console.log(33333333333,menus);
+        
         var config = editor.config;
         // config.zIndex 是配置的编辑区域的 z-index，菜单的 z-index 得在其基础上 +1
         var zIndex = config.zIndex + 1;
-        console.log('menus');
-        console.log(this.menus);
+        // console.log('menus');
+        // console.log(this.menus);
         
         objForEach(menus, function (key, menu) {
             var $elem = menu.$elem;
@@ -3037,6 +3136,7 @@ Menus.prototype = {
 
             // 点击类型，例如 bold
             if (type === 'click' && menu.onClick) {
+                
                 $elem.on('click', function (e) {
                     if (editor.selection.getRange() == null) {
                         return;
@@ -3047,21 +3147,41 @@ Menus.prototype = {
 
             // 下拉框，例如 head
             if (type === 'droplist' && droplist) {
-                $elem.on('mouseenter', function (e) {
-                    if (editor.selection.getRange() == null) {
-                        return;
+                $elem.on('click', function (e) {
+                    // console.log(33333333333,e);
+                    // console.log(droplist._show);
+                    if(droplist._show){
+                        droplist.hideTimeoutId = setTimeout(function () {
+                            droplist.hide();
+                        }, 0);
+                    }else{
+                        if (editor.selection.getRange() == null) {
+                            return;
+                        }
+                        // 显示
+                        droplist.showTimeoutId = setTimeout(function () {
+                            droplist.show();
+                        }, 200);
                     }
-                    // 显示
-                    droplist.showTimeoutId = setTimeout(function () {
-                        droplist.show();
-                    }, 200);
-                }).on('mouseleave', function (e) {
-                    // 隐藏
-                    droplist.hideTimeoutId = setTimeout(function () {
-                        droplist.hide();
-                    }, 0);
-                });
+                })
             }
+
+            // if (type === 'droplist' && droplist) {
+            //     $elem.on('mouseenter', function (e) {
+            //         if (editor.selection.getRange() == null) {
+            //             return;
+            //         }
+            //         // 显示
+            //         droplist.showTimeoutId = setTimeout(function () {
+            //             droplist.show();
+            //         }, 200);
+            //     }).on('mouseleave', function (e) {
+            //         // 隐藏
+            //         droplist.hideTimeoutId = setTimeout(function () {
+            //             droplist.hide();
+            //         }, 0);
+            //     });
+            // }
 
             // 弹框类型，例如 link
             if (type === 'panel' && menu.onClick) {
@@ -4803,18 +4923,38 @@ Editor.prototype = {
 
         // 记录输入法的开始和结束
         var compositionEnd = true;
-        $textContainerElem.on('compositionstart', function () {
-            // 输入法开始输入
-            compositionEnd = false;
-        });
-        $textContainerElem.on('compositionend', function () {
-            // 输入法结束输入
-            compositionEnd = true;
-        });
+        // $textContainerElem.on('compositionstart', function () {
+        //     // 输入法开始输入
+        //     compositionEnd = false;
+        // });
+        // $textContainerElem.on('compositionend', function () {
+        //     // 输入法结束输入
+        //     compositionEnd = true;
+        // });
 
         // 绑定 onchange
         $textContainerElem.on('click keyup', function () {
             // 输入法结束才出发 onchange
+            // console.log(22222);
+            var menus = _this.menus.menus;
+            // console.log('menus',menus);
+            
+            for (let key in menus) {
+                if (menus.hasOwnProperty(key)) {
+                    // console.log(menus[key]);
+                    if (menus[key].type=="droplist") {
+                        // _show
+                        var droplist = menus[key].droplist;
+                        // droplist.hideTimeoutId = setTimeout(function () {
+                        //     droplist.hide();
+                        // }, 0);
+                        // setTimeout(function () {
+                        droplist.hide();
+                        // }, 0);
+                    } 
+                }
+            }
+            
             compositionEnd && _this.change && _this.change();
         });
         $toolbarElem.on('click', function () {
