@@ -1,7 +1,7 @@
 {
   "name": "better-editor-mobile",
   "title": "better-editor-mobile",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "支持本地图片、视频上传的移动端富文本编辑器",
   "main": "release/wangEditor.js",
   "scripts": {
