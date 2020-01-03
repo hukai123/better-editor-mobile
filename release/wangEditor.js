@@ -2605,9 +2605,9 @@ Video.prototype = {
 
     addUploadEvent: function addUploadEvent(){
         var editor = this.editor;
-        $('#'+this.upFileVideoId).on('click', function (e) {
-            e.stopPropagation();
-        });
+        // $('#'+this.upFileVideoId).on('click', function (e) {
+        //     e.stopPropagation();
+        // });
         editor.$toolbarElem.on("change","#"+this.upFileVideoId,function (e) {
             e.stopPropagation();
             e.preventDefault();
@@ -2621,9 +2621,9 @@ Video.prototype = {
     onClick: function onClick() {
         var editor = this.editor;
         // var uploadVideo = this.editor.uploadVideo;
-        // $('#'+this.upFileVideoId).on('click', function (e) {
-        //     e.stopPropagation();
-        // });
+        $('#'+this.upFileVideoId).on('click', function (e) {
+            e.stopPropagation();
+        });
         // editor.$toolbarElem.on("change","#"+this.upFileVideoId,function (e) {
         //     e.stopPropagation();
         //     var fileList = e.target.files;
@@ -2776,14 +2776,15 @@ Image.prototype = {
     addUploadEvent: function addUploadEvent(){
         var editor = this.editor;
         var _active = this._active
-        $('#'+this.upFileId).on('click', function (e) {
-            e.stopPropagation();
-        });
+        // $('#'+this.upFileId).on('click', function (e) {
+        //     alert(22222)
+        //     e.stopPropagation();
+        // });
         this.editor.$toolbarElem.on("change","#"+this.upFileId,function (e) {
         // $('#'+this.upFileId).off('change').on("change",function (e) {
             e.stopPropagation();
             e.preventDefault();
-            console.log('eeeeeeeeeeeeee',e);
+            // console.log('eeeeeeeeeeeeee',e);
             
             var fileList = e.target.files;
             if (fileList.length) {
@@ -2799,10 +2800,9 @@ Image.prototype = {
         var editor = this.editor;
         var config = editor.config;
         var uploadImg = this.editor.uploadImg;
-        
-        // $('#'+this.upFileId).on('click', function (e) {
-        //     e.stopPropagation();
-        // });
+        $('#'+this.upFileId).on('click', function (e) {
+            e.stopPropagation();
+        });
         // // this.editor.$toolbarElem.on("change","#"+this.upFileId,function (e) {
         // $('#'+this.upFileId).off('change').on("change",function (e) {
         //     e.stopPropagation();
@@ -2820,6 +2820,8 @@ Image.prototype = {
         var $file = $('#' + this.upFileId);
         var fileElem = $file[0];
         if (fileElem) {
+            // alert(1111)
+            // console.log(2222222222);
             fileElem.click();
         } else {
             return false;
